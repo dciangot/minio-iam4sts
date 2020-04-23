@@ -22,7 +22,7 @@ credenstials = dict(tree['AssumeRoleWithWebIdentityResponse']
                     ['AssumeRoleWithWebIdentityResult']['Credentials'])
 
 # Get username from token and check if a folder for the mount is ready
-username = jwt.decode(token, verify=False)['email'].lower().split("@")[0]
+username = jwt.decode(token, verify=False)['preferred_username'].lower().split("@")[0]
 directory = "/tmp/" + username
 
 if not os.path.exists(directory):
