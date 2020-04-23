@@ -5,7 +5,6 @@ import jwt
 import requests
 import xmltodict
 import os
-import glob
 
 token = os.getenv("TOKEN")
 
@@ -53,21 +52,24 @@ config = """
 [%s]
 type = s3
 provider = Minio
-env_auth = false
-access_key_id = %s
-secret_access_key = %s
-session_token = %s
+env_auth = true
+access_key_id =
+secret_access_key =
+session_token =
 endpoint = http://%s:9000
 """ % (
     username,
-    credenstials['AccessKeyId'],
-    credenstials['SecretAccessKey'],
-    credenstials['SessionToken'],
+
     '131.154.97.121'
     )
 
 with open("%s.conf" % username, "w") as conf_file:
     conf_file.write(config)
+
+# Set env vars with credentials
+os.environ['AWS_ACCESS_KEY'] = credenstials['AccessKeyId']
+os.environ['AWS_SECRET_KEY'] = credenstials['SecretAccessKey']
+os.environ['AWS_SESSION_TOKEN'] = credenstials['SessionToken']
 
 # Unmount volume if already present
 myCmd = os.popen('fusermount -u /tmp/%s' % username).read()
