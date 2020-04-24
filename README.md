@@ -1,6 +1,6 @@
 # Quick start
 
-- Rertrieve ID_Token from the provider and set it in the `TOKEN` env var
+- Rertrieve an access token from the `iam-demo.cloud.cnaf.infn.it` and set it in the `TOKEN` env var
 - `pip3 install --user -r requirements.txt`
 - `curl https://rclone.org/install.sh | sudo bash`
 - `TOKEN=$TOKEN python3 main.py`
