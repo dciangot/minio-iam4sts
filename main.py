@@ -11,7 +11,8 @@ token = os.getenv("TOKEN")
 r = requests.post("http://131.154.97.121:9000", data={
     'Action': "AssumeRoleWithWebIdentity",
     'Version': "2011-06-15",
-    'WebIdentityToken': token
+    'WebIdentityToken': token,
+    'DurationSeconds': 900
 })
 
 print(r.status_code, r.reason)
@@ -70,6 +71,11 @@ with open("%s.conf" % username, "w") as conf_file:
 os.environ['AWS_ACCESS_KEY'] = credenstials['AccessKeyId']
 os.environ['AWS_SECRET_KEY'] = credenstials['SecretAccessKey']
 os.environ['AWS_SESSION_TOKEN'] = credenstials['SessionToken']
+
+print("export AWS_ACCESS_KEY=%s" % credenstials['AccessKeyId'])
+print("export AWS_SECRET_KEY=%s" % credenstials['SecretAccessKey'])
+print("export AWS_SESSION_TOKEN=%s" % credenstials['SessionToken'])
+
 
 # Unmount volume if already present
 myCmd = os.popen('fusermount -u /tmp/%s' % username).read()
