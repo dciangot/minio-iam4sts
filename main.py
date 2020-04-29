@@ -5,15 +5,18 @@ import jwt
 import requests
 import xmltodict
 import os
+import urllib3
 
 token = os.getenv("TOKEN")
 
-r = requests.post("http://131.154.97.121:9000", data={
-    'Action': "AssumeRoleWithWebIdentity",
-    'Version': "2011-06-15",
-    'WebIdentityToken': token,
-    'DurationSeconds': 900
-})
+r = requests.post("https://131.154.97.121:9001", 
+    data={
+        'Action': "AssumeRoleWithWebIdentity",
+        'Version': "2011-06-15",
+        'WebIdentityToken': token,
+        'DurationSeconds': 900
+    },
+    verify='MINIO.pem')
 
 print(r.status_code, r.reason)
 
@@ -31,11 +34,16 @@ if not os.path.exists(directory):
 
 # Initialize Minio client
 minioClient = Minio(
-    '131.154.97.121:9000',
+    '131.154.97.121:9001',
     access_key=credenstials['AccessKeyId'],
     secret_key=credenstials['SecretAccessKey'],
     session_token=credenstials['SessionToken'],
-    secure=False
+    secure=True,
+    http_client=urllib3.PoolManager(
+            timeout=urllib3.Timeout.DEFAULT_TIMEOUT,
+            cert_reqs='CERT_REQUIRED',
+            ca_certs="MINIO.pem",
+)
 )
 
 # Make a bucket with the make_bucket API call.
@@ -48,6 +56,9 @@ except BucketAlreadyExists:
 except ResponseError as err:
     raise err
 
+# TODO: sudo cp MINIO.pem /etc/pki/ca-trust/source/anchors/
+# sudo update-ca-certificates
+
 # Write rclone config file in $PWD/<username>.conf
 config = """
 [%s]
@@ -57,7 +68,7 @@ env_auth = true
 access_key_id =
 secret_access_key =
 session_token =
-endpoint = http://%s:9000
+endpoint = https://%s:9001
 """ % (
     username,
 
@@ -82,7 +93,7 @@ myCmd = os.popen('fusermount -u /tmp/%s' % username).read()
 print(myCmd)
 
 # Mount all user buckets
-myCmd = os.popen('rclone --config %s.conf mount --daemon --vfs-cache-mode full --no-modtime %s: /tmp/%s && sleep 2' % (username, username, username)).read()
+myCmd = os.popen('rclone --ca-cert MINIO.pem --config %s.conf mount --daemon --vfs-cache-mode full --no-modtime %s: /tmp/%s && sleep 2' % (username, username, username)).read()
 print(myCmd)
 
 # List contents of user buckets
