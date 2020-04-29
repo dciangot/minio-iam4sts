@@ -9,14 +9,15 @@ import urllib3
 
 token = os.getenv("TOKEN")
 
-r = requests.post("https://131.154.97.121:9001", 
-    data={
-        'Action': "AssumeRoleWithWebIdentity",
-        'Version': "2011-06-15",
-        'WebIdentityToken': token,
-        'DurationSeconds': 900
-    },
-    verify='MINIO.pem')
+r = requests.post("https://131.154.97.121:9001",
+                  data={
+                      'Action':
+                      "AssumeRoleWithWebIdentity",
+                      'Version': "2011-06-15",
+                      'WebIdentityToken': token,
+                      'DurationSeconds': 900
+                  },
+                  verify='MINIO.pem')
 
 print(r.status_code, r.reason)
 
@@ -26,7 +27,8 @@ credenstials = dict(tree['AssumeRoleWithWebIdentityResponse']
                     ['AssumeRoleWithWebIdentityResult']['Credentials'])
 
 # Get username from token and check if a folder for the mount is ready
-username = jwt.decode(token, verify=False)['preferred_username'].lower().split("@")[0]
+username = jwt.decode(token, verify=False)[
+    'preferred_username'].lower().split("@")[0]
 directory = "/tmp/" + username
 
 if not os.path.exists(directory):
@@ -40,10 +42,10 @@ minioClient = Minio(
     session_token=credenstials['SessionToken'],
     secure=True,
     http_client=urllib3.PoolManager(
-            timeout=urllib3.Timeout.DEFAULT_TIMEOUT,
-            cert_reqs='CERT_REQUIRED',
-            ca_certs="MINIO.pem",
-)
+        timeout=urllib3.Timeout.DEFAULT_TIMEOUT,
+        cert_reqs='CERT_REQUIRED',
+        ca_certs="MINIO.pem",
+    )
 )
 
 # Make a bucket with the make_bucket API call.
@@ -73,7 +75,7 @@ endpoint = https://%s:9001
     username,
 
     '131.154.97.121'
-    )
+)
 
 with open("%s.conf" % username, "w") as conf_file:
     conf_file.write(config)
@@ -93,7 +95,8 @@ myCmd = os.popen('fusermount -u /tmp/%s' % username).read()
 print(myCmd)
 
 # Mount all user buckets
-myCmd = os.popen('rclone --ca-cert MINIO.pem --config %s.conf mount --daemon --vfs-cache-mode full --no-modtime %s: /tmp/%s && sleep 2' % (username, username, username)).read()
+myCmd = os.popen('rclone --ca-cert MINIO.pem --config %s.conf mount --daemon --vfs-cache-mode full --no-modtime %s: /tmp/%s && sleep 2' %
+                 (username, username, username)).read()
 print(myCmd)
 
 # List contents of user buckets
