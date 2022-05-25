@@ -1,4 +1,4 @@
 minio==5.0.10
-PyJWT==1.7.1
+PyJWT==2.4.0
 requests==2.23.0
 xmltodict==0.12.0
